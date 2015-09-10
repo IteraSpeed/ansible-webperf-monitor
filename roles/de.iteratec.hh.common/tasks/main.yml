@@ -1,0 +1,20 @@
+---
+- name: update apt cache if outdated
+  become: yes
+  become_method: sudo
+  apt:
+    update_cache: yes
+    cache_valid_time: "{{ apt_cache_valid_time }}"
+
+- name: Install python
+  apt:
+    name: python
+    state: present
+
+- name: allow use of ansible rsync module without password prompt
+  sudo: yes
+  lineinfile:
+    dest: /etc/sudoers
+    line: "{{ ansible_env.SUDO_USER }} ALL = NOPASSWD{{':'}} /usr/bin/rsync"
+    state: present
+  when: ansible_env.SUDO_USER is defined

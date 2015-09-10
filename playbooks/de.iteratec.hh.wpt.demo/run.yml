@@ -1,0 +1,9 @@
+---
+- hosts: remote-conference
+  become: yes
+  become_method: sudo
+  roles:
+    - { role: de.iteratec.hh.common}
+    - { role: de.iteratec.hh.docker}
+    - { role: de.iteratec.hh.wptserver}
+    - { role: de.iteratec.hh.osm, BASE_URL_OSM: "osm-conference.hh.iteratec.de", MYSQL_ROOT_PASSWORD: root, MYSQL_DATABASE: osm_db, MYSQL_USER: osm_db_user, MYSQL_PASSWORD: osm_db_pass, TOMCAT_USER: tomcat, TOMCAT_PASSWORD: tomcat, OSM_ADMIN_USER: admin, OSM_ADMIN_PASSWORD: admin, OSM_ROOT_USER: root, OSM_ROOT_PASSWORD: root }

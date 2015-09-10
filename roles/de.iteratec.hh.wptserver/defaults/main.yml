@@ -1,0 +1,2 @@
+MIGRATE_SETTINGS: true
+MIGRATION_SETTINGS_SOURCE: /tmp/osm/example/settings

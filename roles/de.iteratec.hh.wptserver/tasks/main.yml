@@ -1,0 +1,27 @@
+---
+- name: Create data volume if needed
+  docker:
+    name: wptserver-data
+    image: iteratechh/wptserver
+    state: present
+
+- name: Migrate settings if option checked
+  docker:
+    name: wptserver-settings-migration
+    image: iteratechh/wptserver
+    state: started
+    volumes_from:
+    - wptserver-data
+    volumes:
+    - "{{ MIGRATION_SETTINGS_SOURCE }}:/scripts/settings"
+    command: "migrate-settings"
+    pull: always
+  when: MIGRATE_SETTINGS
+
+- name: Start wptserver app container
+  docker:
+    name: wptserver
+    image: iteratechh/wptserver
+    state: started
+    volumes_from:
+    - wptserver-data

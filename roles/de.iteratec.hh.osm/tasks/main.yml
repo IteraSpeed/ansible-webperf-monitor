@@ -1,0 +1,40 @@
+---
+- name: run mysql docker image
+  docker:
+    name: osm-mysql
+    image: mysql
+    state: started
+    env:
+      MYSQL_ROOT_PASSWORD: "{{ MYSQL_ROOT_PASSWORD }}"
+      MYSQL_DATABASE: "{{ MYSQL_DATABASE }}"
+      MYSQL_USER: "{{ MYSQL_USER }}"
+      MYSQL_PASSWORD: "{{ MYSQL_PASSWORD }}"
+
+- name: create volume image for osm
+  docker:
+    name: osm-volumes
+    image: iteratechh/openspeedmonitor
+    state: present
+    pull: always
+
+- name: run osm app
+  docker:
+    name: osm-app
+    image: iteratechh/openspeedmonitor
+    state: started
+    pull: always
+    env:
+      BASE_URL_OSM: "{{ BASE_URL_OSM }}"
+      TOMCAT_USER: "{{ TOMCAT_USER }}"
+      TOMCAT_PASSWORD: "{{ TOMCAT_PASSWORD }}"
+      OSM_ADMIN_USER: "{{ OSM_ADMIN_USER }}"
+      OSM_ADMIN_PASSWORD: "{{ OSM_ADMIN_PASSWORD }}"
+      OSM_ROOT_USER: "{{ OSM_ROOT_USER }}"
+      OSM_ROOT_PASSWORD: "{{ OSM_ROOT_PASSWORD }}"
+      MYSQL_DATABASE: "{{ MYSQL_DATABASE }}"
+      MYSQL_USER: "{{ MYSQL_USER }}"
+      MYSQL_PASSWORD: "{{ MYSQL_PASSWORD }}"
+    volumes_from:
+    - osm-volumes
+    links:
+    - osm-mysql

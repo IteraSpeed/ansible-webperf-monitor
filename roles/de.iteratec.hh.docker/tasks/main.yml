@@ -1,0 +1,78 @@
+---
+- name: Ensure old docker versions are absent
+  sudo: yes
+  apt:
+    name: "{{ item }}"
+    state: absent
+    purge: yes
+  with_items:
+    - docker.io
+    - lxc-docker
+    - lxc-docker-1.7.1
+
+- name: install prerequisites
+  sudo: yes
+  apt:
+    name: "{{ item }}"
+    state: present
+    force: yes
+  with_items:
+    - wget
+    - python-pip
+
+# - name: Install python-pip
+#   easy_install:
+#     name: pip
+
+- name: Check if docker is present
+  shell: dpkg-query -W 'docker-engine'
+  register: is_docker
+
+- name: Install docker
+  command: wget -qO- https://get.docker.com/ | sh
+  when: is_docker.stdout == ""
+
+#- name: download docker install routine
+#  get_url:
+#    url: http://get.docker.com
+#    dest: "{{ ansible_env.HOME }}/installDocker.sh"
+#    mode: 0744
+#
+#- name: install docker
+#  sudo: yes
+#  command: "{{ ansible_env.HOME }}/installDocker.sh"
+#  args:
+#    creates: /usr/bin/docker
+#  register: dockerinstall
+
+- name: install docker tools
+  sudo: yes
+  pip:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - docker-compose
+
+# fixed version of docker-py cause of 
+# https://github.com/ansible/ansible-modules-core/issues/1602
+- name: Install docker-py
+  pip:
+    name: docker-py
+    version: 1.2.3
+    state: present
+
+- name: ensure docker service is running
+  sudo: yes
+  service:
+    name: docker
+    state: running
+    enabled: yes
+
+- name: create docker alias d
+  lineinfile:
+    dest: "{{ ansible_env.HOME }}/.bashrc"
+    line: "{{ item }}"
+    state: present
+  with_items:
+    - alias d="sudo docker"
+    - alias dcompose="sudo docker-compose"
